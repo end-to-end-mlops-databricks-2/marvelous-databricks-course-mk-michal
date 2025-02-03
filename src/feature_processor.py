@@ -1,8 +1,10 @@
 import os
+import io
+import joblib
+import base64
 
 import pandas as pd
 import yaml
-from joblib import dump, load
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -15,14 +17,22 @@ from src.utils import get_logger
 logger = get_logger()
 
 class BinaryThresholdTransformer(BaseEstimator, TransformerMixin):
-    """Custom transformer for binarizing columns (values > 0 become 1)"""
+    """Custom transformer for binarizing columns (values > 0 become 1 for numeric, non-empty strings become 1)"""
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        return (X > 0).astype(int)
+        if pd.api.types.is_numeric_dtype(X):
+            return (X > 0).astype(int)
+        else:
+            # For string columns, return 1 for non-empty strings (excluding missing/NaN)
+            return (~pd.isna(X) & (X != '')).astype(int)
 
+
+def combine_feature_names(x, y):
+    """Combines feature names for OneHotEncoder by joining them with underscore and replacing spaces"""
+    return f"{x}_{y}".replace(' ', '_')
 
 def create_preprocessing_pipeline(config):
     """Create a sklearn pipeline based on the configuration"""
@@ -47,7 +57,8 @@ def create_preprocessing_pipeline(config):
 
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-        ('onehot', OneHotEncoder(drop=None, sparse_output=False, handle_unknown='ignore'))
+        ('onehot', OneHotEncoder(drop=None, sparse_output=False, handle_unknown='ignore', 
+                                feature_name_combiner=combine_feature_names))
     ])
 
     binary_transformer = Pipeline(steps=[
@@ -115,39 +126,71 @@ class HotelBookingPreprocessor:
         """Fit and transform the data"""
         return self.fit(X, y).transform(X)
 
-    def save(self, transformed_data: pd.DataFrame):
-        """Save preprocessing pipeline, transformed data, columns info as artifacts"""
+    def save(self, transformed_data: pd.DataFrame, spark, dbutils):
+        """Save preprocessing pipeline and transformed data to Databricks Volumes"""
+
         run_id = int(pd.Timestamp.now().timestamp())
+        
+        # Define paths for Volumes (without /Volumes prefix as dbutils will handle it)
+        volume_base_path = os.path.join(Config.OUTPUT_PREPROCESSING, str(run_id))
+        pipeline_path = os.path.join(volume_base_path, "pipeline.joblib")
+        config_path = os.path.join(volume_base_path, "columns_config.yaml")
+        
+        dbutils.fs.mkdirs(volume_base_path)
+        logger.info(f"Making new directory: {volume_base_path}")
 
-        output_path = os.path.join(Config.OUTPUT_DATA_PATH, str(run_id))
-        os.makedirs(output_path, exist_ok=True)
-        logger.info(f'Saving files into folder: {output_path}')
+        dbutils.fs.mkdirs(volume_base_path)
+        
+        # Serialize pipeline to bytes and save using dbutils
+                
+        # Convert to spark dataframe and save
+        spark_df = spark.createDataFrame(transformed_data)
+        (spark_df.write
+            .format("delta")
+            .mode("overwrite")
+            .saveAsTable(Config.OUTPUT_PROCESSED_DATA_PATH))
+        logger.info(f"Processed data saved to Delta table: {Config.OUTPUT_PROCESSED_DATA_PATH}")
 
-        dump(self.pipeline, os.path.join(output_path, Config.OUTPUT_PIPELINE))
+        # Save metadata
+        metadata = {
+            "processing_date": pd.Timestamp.now().isoformat(),
+            "feature_count": len(transformed_data.columns),
+            "row_count": len(transformed_data),
+            "run_id": run_id,
+            "pipeline_path": pipeline_path,
+            "config_path": config_path
+        }
+        
+        (spark.createDataFrame([metadata])
+            .write
+            .format("delta")
+            .mode("append")
+            .saveAsTable(Config.OUTPUT_PROCESSED_DATA_PATH_METADATA))
+        logger.info(f"Metadata saved successfully into {Config.OUTPUT_PROCESSED_DATA_PATH_METADATA}")
 
-        transformed_data.to_csv(os.path.join(output_path, Config.OUTPUT_DATA_PATH_FEATURES), index=False)
-
-        # # save category mapping as json
-        # with open(os.path.join(output_path, Config.OUTPUT_DATA_PATH_CATEGORY_MAPPING), 'w') as f:
-        #     yaml.dump({'category_mapping': Config._category_columns_mapping}, f, indent=4)
-
-        # save config file with features used and transformations as yaml
-
-
-        with open(os.path.join(output_path, Config.OUTPUT_DATA_PATH_COLUMNS), 'w') as f:
-            yaml.dump(
-                {
-                    'columns_config': Config.COLUMNS_CONFIG,
-                    'feature_names': self.feature_names
-                 }, f
-            )
-
-        return output_path
-
-        # save model params as yaml
+        # Save config with features and transformations to DBFS
+        config_data = {
+            'columns_config': Config.COLUMNS_CONFIG,
+            'feature_names': self.feature_names,
+            'run_id': run_id
+        }
+        yaml_content = yaml.dump(config_data)
+        # Save to DBFS using dbutils
+        dbutils.fs.put(config_path, yaml_content, overwrite=True)
+        logger.info(f"Config saved to: {config_path}")
 
 
-    @classmethod
-    def load(cls, path):
-        """Load a saved preprocessor"""
-        return load(path)
+        # save pipeline.joblib into databricks volume using dbutils
+        buffer = io.BytesIO()
+        joblib.dump(self.pipeline, buffer)
+        encoded_content = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        dbutils.fs.put(pipeline_path, encoded_content, overwrite=True)
+        logger.info(f"Pipeline saved to: {pipeline_path}")
+        
+        return {
+            "run_id": run_id,
+            "table_name": Config.OUTPUT_PROCESSED_DATA_PATH,
+            "pipeline_path": pipeline_path,
+            "config_path": config_path
+        }
+

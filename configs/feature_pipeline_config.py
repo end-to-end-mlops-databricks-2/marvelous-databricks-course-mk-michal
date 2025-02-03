@@ -19,3 +19,10 @@ class Config:
         {'column': 'reserved_room_type', 'type': 'category', 'transformation': 'one-hot', 'fill_missing': None},
         {'column': 'customer_type', 'type': 'category', 'transformation': 'one-hot', 'fill_missing': None}
     ]
+
+    OUTPUT_PROCESSED_DATA_PATH = 'mlops_dev.michalku.hotel_bookings_processed'
+    OUTPUT_PROCESSED_DATA_PATH_METADATA = f'{OUTPUT_PROCESSED_DATA_PATH}_metadata'
+
+    OUTPUT_PREPROCESSING = '/Volumes/mlops_dev/michalku/preprocessing'
+
+
