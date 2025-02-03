@@ -8,7 +8,7 @@
 
 
 # COMMAND ----------
-from configs.feature_pipeline_config import Config
+from src.configs.feature_pipeline_config import Config
 from src.feature_processor import HotelBookingPreprocessor
 
 df = spark.table("mlops_dev.michalku.hotel_bookings")
