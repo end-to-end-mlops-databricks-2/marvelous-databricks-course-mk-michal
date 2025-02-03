@@ -47,6 +47,7 @@ select = [
 ignore = [
     "E501",  # line-too-long
 ]
+builtins = ["spark", "dbutils"]
 
 [tool.ruff.format]
 indent-style = "space"

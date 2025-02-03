@@ -1,8 +1,8 @@
-import os
-import io
-import joblib
 import base64
+import io
+import os
 
+import joblib
 import pandas as pd
 import yaml
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -57,7 +57,7 @@ def create_preprocessing_pipeline(config):
 
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-        ('onehot', OneHotEncoder(drop=None, sparse_output=False, handle_unknown='ignore', 
+        ('onehot', OneHotEncoder(drop=None, sparse_output=False, handle_unknown='ignore',
                                 feature_name_combiner=combine_feature_names))
     ])
 
@@ -130,19 +130,19 @@ class HotelBookingPreprocessor:
         """Save preprocessing pipeline and transformed data to Databricks Volumes"""
 
         run_id = int(pd.Timestamp.now().timestamp())
-        
+
         # Define paths for Volumes (without /Volumes prefix as dbutils will handle it)
         volume_base_path = os.path.join(Config.OUTPUT_PREPROCESSING, str(run_id))
         pipeline_path = os.path.join(volume_base_path, "pipeline.joblib")
         config_path = os.path.join(volume_base_path, "columns_config.yaml")
-        
+
         dbutils.fs.mkdirs(volume_base_path)
         logger.info(f"Making new directory: {volume_base_path}")
 
         dbutils.fs.mkdirs(volume_base_path)
-        
+
         # Serialize pipeline to bytes and save using dbutils
-                
+
         # Convert to spark dataframe and save
         spark_df = spark.createDataFrame(transformed_data)
         (spark_df.write
@@ -160,7 +160,7 @@ class HotelBookingPreprocessor:
             "pipeline_path": pipeline_path,
             "config_path": config_path
         }
-        
+
         (spark.createDataFrame([metadata])
             .write
             .format("delta")
@@ -186,7 +186,7 @@ class HotelBookingPreprocessor:
         encoded_content = base64.b64encode(buffer.getvalue()).decode('utf-8')
         dbutils.fs.put(pipeline_path, encoded_content, overwrite=True)
         logger.info(f"Pipeline saved to: {pipeline_path}")
-        
+
         return {
             "run_id": run_id,
             "table_name": Config.OUTPUT_PROCESSED_DATA_PATH,
