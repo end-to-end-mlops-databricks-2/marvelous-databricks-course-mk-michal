@@ -20,7 +20,6 @@ class Config:
         {"column": "customer_type", "type": "category", "transformation": "one-hot", "fill_missing": None},
     ]
 
-    OUTPUT_PROCESSED_DATA_PATH = "mlops_dev.michalku.hotel_bookings_processed"
-    OUTPUT_PROCESSED_DATA_PATH_METADATA = f"{OUTPUT_PROCESSED_DATA_PATH}_metadata"
-
-    OUTPUT_PREPROCESSING = "/Volumes/mlops_dev/michalku/preprocessing"
+    INPUT_TABLE = "mlops_dev.michalku.hotel_bookings"
+    OUTPUT_TRAIN_TABLE = "mlops_dev.michalku.hotel_bookings_train"
+    OUTPUT_TEST_TABLE = "mlops_dev.michalku.hotel_bookings_test"
