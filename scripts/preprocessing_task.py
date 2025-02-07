@@ -1,6 +1,6 @@
-from src.configs.feature_pipeline_config import Config
-from src.feature_processor_spark import HotelBookingPreprocessorSpark
-from src.utils import get_logger
+from src.hotel_cancellation.configs.feature_pipeline_config import Config
+from src.hotel_cancellation.feature_processor_spark import HotelBookingPreprocessorSpark
+from src.hotel_cancellation.utils import get_logger
 
 logger = get_logger()
 

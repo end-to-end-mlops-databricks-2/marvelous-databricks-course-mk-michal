@@ -2,7 +2,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, NumericType
 
-from src.utils import get_logger
+from src.hotel_cancellation.utils import get_logger
 
 logger = get_logger()
 
