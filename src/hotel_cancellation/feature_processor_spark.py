@@ -34,12 +34,15 @@ class HotelBookingPreprocessorSpark:
         """Separate columns by transformation type"""
         self.numerical_columns = []
         self.binary_columns = []
+        self.categorical_columns = []
 
         for col in self.config:
             if col["transformation"] == "binarize":
                 self.binary_columns.append(col["column"])
             elif col["transformation"] is None:
                 self.numerical_columns.append(col["column"])
+            elif col["transformation"] == "one-hot":
+                self.categorical_columns.append(col["column"])
 
     def _handle_numeric_columns(self, df: DataFrame) -> DataFrame:
         """Handle numeric columns: impute with mean"""
@@ -77,6 +80,6 @@ class HotelBookingPreprocessorSpark:
         df = self._handle_binary_columns(df)
 
         # Select only the columns we processed
-        columns_to_keep = self.numerical_columns + self.binary_columns + [self.label_column]
+        columns_to_keep = self.numerical_columns + self.binary_columns + self.categorical_columns + [self.label_column]
 
         return df.select(columns_to_keep)
