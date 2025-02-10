@@ -1,7 +1,7 @@
 [project]
-name = "housing-price"
+name = "hotel-cancellation"
 version = "0.0.1"
-description = "Housing prices project"
+description = "Hotel cancellation project"
 requires-python = ">=3.11, <3.12"
 dependencies = ["mlflow==2.17.0",
                 "cffi==1.17.1",
@@ -32,8 +32,8 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where =["src"]
-include = ["house_price*"]
+where = ["src"]
+include = ["hotel_cancellation*"]
 
 [tool.ruff]
 line-length = 120
@@ -47,6 +47,7 @@ select = [
 ignore = [
     "E501",  # line-too-long
 ]
+builtins = ["spark", "dbutils"]
 
 [tool.ruff.format]
 indent-style = "space"
