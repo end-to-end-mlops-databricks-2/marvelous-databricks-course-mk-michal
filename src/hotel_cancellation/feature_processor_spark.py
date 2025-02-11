@@ -28,6 +28,7 @@ class HotelBookingPreprocessorSpark:
         self.config = config
         self.feature_names = None
         self.label_column = "is_canceled"
+        self.customer_mail_column = "email"
         self._separate_columns()
 
     def _separate_columns(self):
@@ -80,6 +81,6 @@ class HotelBookingPreprocessorSpark:
         df = self._handle_binary_columns(df)
 
         # Select only the columns we processed
-        columns_to_keep = self.numerical_columns + self.binary_columns + self.categorical_columns + [self.label_column]
+        columns_to_keep = self.numerical_columns + self.binary_columns + self.categorical_columns + [self.label_column, self.customer_mail_column]
 
         return df.select(columns_to_keep)

@@ -5,7 +5,6 @@ from hotel_cancellation.utils import get_logger
 from mlflow.tracking import MlflowClient
 
 
-
 logger = get_logger()
 
 def get_registered_model_metric(model_name: str = Config.REGISTERED_MODEL_NAME) -> float:
