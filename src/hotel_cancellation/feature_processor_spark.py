@@ -81,6 +81,11 @@ class HotelBookingPreprocessorSpark:
         df = self._handle_binary_columns(df)
 
         # Select only the columns we processed
-        columns_to_keep = self.numerical_columns + self.binary_columns + self.categorical_columns + [self.label_column, self.customer_mail_column]
+        columns_to_keep = (
+            self.numerical_columns
+            + self.binary_columns
+            + self.categorical_columns
+            + [self.label_column, self.customer_mail_column]
+        )
 
         return df.select(columns_to_keep)

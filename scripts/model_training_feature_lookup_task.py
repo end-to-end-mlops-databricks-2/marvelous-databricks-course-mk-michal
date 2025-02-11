@@ -4,24 +4,18 @@
 
 # COMMAND ----------
 
-
-import sys
-sys.path
-sys.path.append('../src')
-
-from hotel_cancellation.model_training_with_feature_lookup import create_feature_table, FeatureLookupTraining
 import mlflow
+from pyspark.sql import SparkSession
 
+from hotel_cancellation.model_training_with_feature_lookup import FeatureLookupTraining
 
 # COMMAND ----------
 
 
-import mlflow
 mlflow.set_tracking_uri("databricks")
 mlflow.set_registry_uri("databricks-uc")
 
 
-from pyspark.sql import SparkSession
 spark = SparkSession.builder.getOrCreate()
 feature_lookup_training = FeatureLookupTraining(spark)
 feature_lookup_training.load_data_and_drop_columns()
@@ -42,5 +36,3 @@ metrics = feature_lookup_training.evaluate()
 feature_lookup_training.log_results_to_mlflow(metrics)
 
 # COMMAND ----------
-
-

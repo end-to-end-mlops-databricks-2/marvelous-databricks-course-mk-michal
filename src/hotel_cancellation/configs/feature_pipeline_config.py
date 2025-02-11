@@ -24,7 +24,6 @@ class Config:
     OUTPUT_TRAIN_TABLE = "mlops_dev.michalku.hotel_bookings_train"
     OUTPUT_TEST_TABLE = "mlops_dev.michalku.hotel_bookings_test"
 
-
     # training parameters
     LOGISTIC_REGRESSION_PARAMETERS = {
         "penalty": "l2",
@@ -34,7 +33,7 @@ class Config:
     }
 
     REGISTERED_MODEL_NAME = "mlops_dev.michalku.hotel_cancellation_model_log_r"
-    MAIN_MODEL_METRIC = 'f1'
+    MAIN_MODEL_METRIC = "f1"
     EXPERIMENT_NAME = "/Shared/hotel-cancellation"
 
     FEATURE_LOOKUP_CUSTOMER_TABLE = "mlops_dev.michalku.feature_table_customer"

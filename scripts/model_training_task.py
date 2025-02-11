@@ -1,9 +1,9 @@
 # Databricks notebook source
 # COMMAND ----------
-import os
 import mlflow
-from mlflow.models import infer_signature
+import mlflow.utils.databricks_utils
 from pyspark.sql import SparkSession
+
 from src.hotel_cancellation.configs.feature_pipeline_config import Config
 from src.hotel_cancellation.model_training import ModelTrainer
 
@@ -13,7 +13,6 @@ spark = SparkSession.builder.getOrCreate()
 
 print(spark.version)
 
-import mlflow.utils.databricks_utils
 
 mlflow.set_experiment(Config.EXPERIMENT_NAME)
 # Start MLflow run
@@ -33,4 +32,3 @@ with mlflow.start_run() as run:
     # Evaluate and log metrics
     metrics = trainer.evaluate()
     trainer.log_results_to_mlflow(metrics)
-
