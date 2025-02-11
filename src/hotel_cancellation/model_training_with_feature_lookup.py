@@ -11,7 +11,6 @@ from hotel_cancellation.utils import get_logger
 
 logger = get_logger()
 
-
 def create_feature_table(spark: SparkSession):
     logger.info(f"Creating feature table {Config.FEATURE_LOOKUP_CUSTOMER_TABLE}")
     sql = f"""
@@ -47,6 +46,7 @@ class FeatureLookupTraining(ModelTrainer):
             "previous_bookings_not_canceled"
         ]
         self.feature_lookup_key = "email"
+        self.model_pipeline = None
 
     def feature_engineering(self):
         self.training_set =  self.fe.create_training_set(
@@ -61,43 +61,36 @@ class FeatureLookupTraining(ModelTrainer):
             ],
         )
         self.X_train = self.training_set.load_df().toPandas()
-        self.X_train = self.X_train.drop(self.target)
-        self.y_train = self.X_train[self.target]
+        self.y_train = self.train_df.toPandas()[self.target]
         
-        self.X_test = self.test_df.drop(columns=[self.target, self.feature_lookup_key])
         self.y_test = self.test_df[self.target]
-
+        self.X_test = self.test_df.drop(self.target, axis = 1)
+ 
     def load_data_and_drop_columns(self):
         # Combine the columns to drop into a single list
         columns_to_drop = self.feature_lookup_columns
         self.train_df = self.spark.table(Config.OUTPUT_TRAIN_TABLE).drop(*columns_to_drop)
-        self.test_df = self.spark.table(Config.OUTPUT_TEST_TABLE).drop("is_canceled")
+        self.test_df = self.spark.table(Config.OUTPUT_TEST_TABLE).toPandas()
 
 
     def log_results_to_mlflow(self, metrics: dict):
+        mlflow.set_experiment("hotel_cancellation_feature_lookup")
         with mlflow.start_run() as run:
             mlflow.log_metrics(metrics)
             mlflow.log_params(Config.LOGISTIC_REGRESSION_PARAMETERS)
 
             dataset = mlflow.data.from_spark(
-                self.train_data,
+                self.train_df,
                 table_name = Config.OUTPUT_TRAIN_TABLE,
                 version = "0",
                 )
             mlflow.log_input(dataset, context="training")
-            
-            dataset_test = mlflow.data.from_spark(
-                self.test_data, 
-                table_name = Config.OUTPUT_TEST_TABLE,
-                version = '0'
-                )
-            mlflow.log_input(dataset_test, context="training")
 
             # create signature
             signature = infer_signature(self.X_train, self.y_train)
 
             self.fe.log_model(
-                model=self.pipeline,
+                model=self.model_pipeline,
                 flavor=mlflow.sklearn,
                 artifact_path="model-logistic-regression-feature-lookup",
                 training_set=self.training_set,
