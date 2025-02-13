@@ -20,6 +20,20 @@ class Config:
         {"column": "customer_type", "type": "category", "transformation": "one-hot", "fill_missing": None},
     ]
 
-    INPUT_TABLE = "mlops_dev.michalku.hotel_bookings"
+    INPUT_TABLE = "mlops_dev.michalku.hotel_bookings_full"
     OUTPUT_TRAIN_TABLE = "mlops_dev.michalku.hotel_bookings_train"
     OUTPUT_TEST_TABLE = "mlops_dev.michalku.hotel_bookings_test"
+
+    # training parameters
+    LOGISTIC_REGRESSION_PARAMETERS = {
+        "penalty": "l2",
+        "C": 1.0,
+        "solver": "liblinear",
+        "max_iter": 100,
+    }
+
+    REGISTERED_MODEL_NAME = "mlops_dev.michalku.hotel_cancellation_model_log_r"
+    MAIN_MODEL_METRIC = "f1"
+    EXPERIMENT_NAME = "/Shared/hotel-cancellation"
+
+    FEATURE_LOOKUP_CUSTOMER_TABLE = "mlops_dev.michalku.feature_table_customer"
