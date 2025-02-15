@@ -20,6 +20,11 @@ class Config:
         {"column": "customer_type", "type": "category", "transformation": "one-hot", "fill_missing": None},
     ]
 
+    CATALOG_NAME = "mlops_dev"
+    SCHEMA_NAME = "michalku"
+    TABLE_NAME_PREFIX = "hotel_bookings_inference"
+
+
     INPUT_TABLE = "mlops_dev.michalku.hotel_bookings_full"
     OUTPUT_TRAIN_TABLE = "mlops_dev.michalku.hotel_bookings_train"
     OUTPUT_TEST_TABLE = "mlops_dev.michalku.hotel_bookings_test"
@@ -33,6 +38,7 @@ class Config:
     }
 
     REGISTERED_MODEL_NAME = "mlops_dev.michalku.hotel_cancellation_model_log_r"
+    REGISTERED_MODEL_NAME_FE = "mlops_dev.michalku.hotel_cancellation_model_fe"
     MAIN_MODEL_METRIC = "f1"
     EXPERIMENT_NAME = "/Shared/hotel-cancellation"
 

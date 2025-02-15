@@ -45,7 +45,15 @@ def get_latest_run_metric() -> float:
 
 
 def register_model(latest_run: str):
-    mlflow.register_model(
+    registered_model = mlflow.register_model(
         model_uri=f"runs:/{latest_run.info.run_id}/model-logistic-regression", name=Config.REGISTERED_MODEL_NAME
+    )
+
+    # set alias to the model named latest-model
+    client = mlflow.tracking.MlflowClient()
+    client.set_registered_model_alias(
+        name=Config.REGISTERED_MODEL_NAME, 
+        version=registered_model.version, 
+        alias="latest-model"
     )
     logger.info(f"Model registered as: {Config.REGISTERED_MODEL_NAME}")
