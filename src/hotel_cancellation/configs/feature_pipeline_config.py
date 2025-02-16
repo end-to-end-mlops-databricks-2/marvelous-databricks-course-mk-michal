@@ -43,3 +43,6 @@ class Config:
     EXPERIMENT_NAME = "/Shared/hotel-cancellation"
 
     FEATURE_LOOKUP_CUSTOMER_TABLE = "mlops_dev.michalku.feature_table_customer"
+    FEATURE_LOOKUP_CUSTOMER_TABLE_ONLINE = f"{FEATURE_LOOKUP_CUSTOMER_TABLE}_online"
+    FEATURE_SPEC_NAME = "mlops_dev.michalku.customer_features_spec"
+    FEATURE_LOOKUP_ENDPOINT_NAME = "mlops_dev.michalku.feature_lookup_endpoint"

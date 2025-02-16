@@ -20,7 +20,7 @@ class ModelServingEndpoint:
         self.registered_model_path = Config.REGISTERED_MODEL_NAME
         self.model_name = Config.REGISTERED_MODEL_NAME.split(".")[-1]
         self.workspace = WorkspaceClient()
-        self.model_serving_endpoint = f"{self.model_name}-endpoint-external"
+        self.model_serving_endpoint = f"{self.model_name}-endpoint"
         self.spark = spark
 
     def get_latest_model_version(self):
