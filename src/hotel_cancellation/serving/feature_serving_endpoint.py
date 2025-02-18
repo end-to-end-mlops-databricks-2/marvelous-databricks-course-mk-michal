@@ -16,6 +16,7 @@ class FeatureServingEndpoint:
         self.feature_lookup_table = Config.FEATURE_LOOKUP_CUSTOMER_TABLE
         self.feature_lookup_table_online = Config.FEATURE_LOOKUP_CUSTOMER_TABLE_ONLINE
         self.feature_spec_name = Config.FEATURE_SPEC_NAME
+        self.endpoint_name = Config.FEATURE_LOOKUP_ENDPOINT_NAME
         self.spark = spark
         self.workspace = WorkspaceClient()
         self.fe = FeatureEngineeringClient()
@@ -51,8 +52,8 @@ class FeatureServingEndpoint:
         features = [
             FeatureLookup(
                 table_name=self.feature_lookup_table,
-                lookup_key="email_id",
-                feature_names=["customer_type", "previous_cancellations", "previous_bookings_not_cancelled"],
+                lookup_key="email",
+                feature_names=["customer_type", "previous_cancellations", "previous_bookings_not_canceled"],
             )
         ]
         logger.info(f"Creating feature spec {self.feature_spec_name} with features {features}")
@@ -72,10 +73,19 @@ class FeatureServingEndpoint:
                 entity_name=self.feature_spec_name, scale_to_zero_enabled=scale_to_zero, workload_size=workload_size
             )
         ]
+
+        auto_capture_config = AutoCaptureConfigInput(
+            catalog_name=Config.CATALOG_NAME,
+            enabled=True,
+            schema_name=Config.SCHEMA_NAME,
+            table_name_prefix=Config.TABLE_NAME_PREFIX,
+        )
+        
         if not endpoint_exists:
             logger.info(f"Creating feature serving endpoint {Config.FEATURE_LOOKUP_ENDPOINT_NAME} with served entities {served_entities}")
             self.workspace.serving_endpoints.create(
                 name=Config.FEATURE_LOOKUP_ENDPOINT_NAME,
+                auto_capture_config=auto_capture_config
                 config=EndpointCoreConfigInput(
                     served_entities=served_entities,
                 ),

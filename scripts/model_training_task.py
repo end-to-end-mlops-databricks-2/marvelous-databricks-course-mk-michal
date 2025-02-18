@@ -1,5 +1,4 @@
 # Databricks notebook source
-# COMMAND ----------
 import mlflow
 import mlflow.utils.databricks_utils
 from pyspark.sql import SparkSession
@@ -32,3 +31,7 @@ with mlflow.start_run() as run:
     # Evaluate and log metrics
     metrics = trainer.evaluate()
     trainer.log_results_to_mlflow(metrics)
+
+# COMMAND ----------
+
+

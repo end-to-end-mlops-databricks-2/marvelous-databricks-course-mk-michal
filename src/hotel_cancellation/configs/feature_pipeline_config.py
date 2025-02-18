@@ -44,5 +44,6 @@ class Config:
 
     FEATURE_LOOKUP_CUSTOMER_TABLE = "mlops_dev.michalku.feature_table_customer"
     FEATURE_LOOKUP_CUSTOMER_TABLE_ONLINE = f"{FEATURE_LOOKUP_CUSTOMER_TABLE}_online"
-    FEATURE_SPEC_NAME = "mlops_dev.michalku.customer_features_spec"
-    FEATURE_LOOKUP_ENDPOINT_NAME = "mlops_dev.michalku.feature_lookup_endpoint"
+    FEATURE_SPEC_NAME = "mlops_dev.michalku.customer_features_spec_updated"
+    FEATURE_LOOKUP_ENDPOINT_NAME = "hotel_cancellation_feature_lookup-endpoint"
+    TABLE_NAME_PREFIX_FE = "hotel_bookings_inference_fe"
