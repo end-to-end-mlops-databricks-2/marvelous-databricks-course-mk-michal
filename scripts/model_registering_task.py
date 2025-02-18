@@ -8,7 +8,7 @@ mlflow.set_registry_uri("databricks-uc")
 
 registered_model_metric = get_registered_model_metric()
 latest_run_metric, latest_run = get_latest_run_metric()
-if latest_run_metric > registered_model_metric:
+if latest_run_metric >= registered_model_metric:
     print("New model is better than the registered model. Registering the new model.")
     register_model(latest_run)
 else:
