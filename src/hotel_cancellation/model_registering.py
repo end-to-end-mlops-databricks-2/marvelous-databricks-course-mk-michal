@@ -52,8 +52,6 @@ def register_model(latest_run: str):
     # set alias to the model named latest-model
     client = mlflow.tracking.MlflowClient()
     client.set_registered_model_alias(
-        name=Config.REGISTERED_MODEL_NAME, 
-        version=registered_model.version, 
-        alias="latest-model"
+        name=Config.REGISTERED_MODEL_NAME, version=registered_model.version, alias="latest-model"
     )
     logger.info(f"Model registered as: {Config.REGISTERED_MODEL_NAME}")

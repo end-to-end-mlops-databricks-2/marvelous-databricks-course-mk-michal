@@ -1,19 +1,16 @@
 import os
-import databricks
-from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.serving import (
-    EndpointCoreConfigInput,
-    ServedEntityInput,
-    AutoCaptureConfigInput
 
-)
+import databricks
 import mlflow
 import requests
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.serving import AutoCaptureConfigInput, EndpointCoreConfigInput, ServedEntityInput
 
 from hotel_cancellation.configs.feature_pipeline_config import Config
 from hotel_cancellation.utils import get_logger
 
 logger = get_logger()
+
 
 class ModelServingEndpoint:
     def __init__(self, spark):
@@ -29,9 +26,7 @@ class ModelServingEndpoint:
         """
         client = mlflow.tracking.MlflowClient()
         logger.info(f"Getting the latest model version for {self.registered_model_path}")
-        latest_version = client.get_model_version_by_alias(
-            self.registered_model_path, alias="latest-model"
-            ).version
+        latest_version = client.get_model_version_by_alias(self.registered_model_path, alias="latest-model").version
         logger.info(f"Latest model version for {self.registered_model_path} is {latest_version}")
         return latest_version
 
@@ -48,11 +43,9 @@ class ModelServingEndpoint:
             schema_name=Config.SCHEMA_NAME,
             table_name_prefix=Config.TABLE_NAME_PREFIX,
         )
-        
+
         try:
-            current_config = self.workspace.serving_endpoints.get(
-                    name=self.model_serving_endpoint
-                )
+            current_config = self.workspace.serving_endpoints.get(name=self.model_serving_endpoint)
         except databricks.sdk.errors.platform.ResourceDoesNotExist:
             logger.info(f"Endpoint {self.model_serving_endpoint} does not exist. Creating endpoint")
             endpoint = self.workspace.serving_endpoints.create(
@@ -74,7 +67,7 @@ class ModelServingEndpoint:
         if latest_model_version > current_model_version:
             logger.info(f"Updating endpoint from version {current_model_version} to {latest_model_version}")
 
-            updated_config = self.workspace.serving_endpoints.update_config(
+            self.workspace.serving_endpoints.update_config(
                 name=self.model_serving_endpoint,
                 auto_capture_config=auto_capture_config,
                 served_entities=[
@@ -84,7 +77,7 @@ class ModelServingEndpoint:
                         scale_to_zero_enabled=current_config.config.served_entities[0].scale_to_zero_enabled,
                         workload_size=current_config.config.served_entities[0].workload_size,
                     )
-                ]
+                ],
             )
             logger.info(f"Endpoint {self.model_serving_endpoint} updated with latest model version")
 
@@ -105,7 +98,5 @@ class ModelServingEndpoint:
         if response.status_code != 200:
             logger.error(f"Error calling endpoint: {response.status_code}, {response.text}")
             response.raise_for_status()
-        
-        return response.status_code, response.text
 
-    
+        return response.status_code, response.text

@@ -24,7 +24,6 @@ class Config:
     SCHEMA_NAME = "michalku"
     TABLE_NAME_PREFIX = "hotel_bookings_inference"
 
-
     INPUT_TABLE = "mlops_dev.michalku.hotel_bookings_full"
     OUTPUT_TRAIN_TABLE = "mlops_dev.michalku.hotel_bookings_train"
     OUTPUT_TEST_TABLE = "mlops_dev.michalku.hotel_bookings_test"

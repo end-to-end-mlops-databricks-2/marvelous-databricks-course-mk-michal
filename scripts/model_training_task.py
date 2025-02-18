@@ -33,5 +33,3 @@ with mlflow.start_run() as run:
     trainer.log_results_to_mlflow(metrics)
 
 # COMMAND ----------
-
-

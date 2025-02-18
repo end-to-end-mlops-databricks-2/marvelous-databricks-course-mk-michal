@@ -1,15 +1,14 @@
-from hotel_cancellation.configs.feature_pipeline_config import Config
-
 import databricks
-from databricks.feature_engineering import FeatureLookup
-from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
+from databricks.feature_engineering import FeatureEngineeringClient, FeatureLookup
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput
-from databricks.feature_engineering import FeatureEngineeringClient
+from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
+from databricks.sdk.service.serving import AutoCaptureConfigInput, EndpointCoreConfigInput, ServedEntityInput
 
+from hotel_cancellation.configs.feature_pipeline_config import Config
 from hotel_cancellation.utils import get_logger
 
 logger = get_logger()
+
 
 class FeatureServingEndpoint:
     def __init__(self, spark):
@@ -31,7 +30,7 @@ class FeatureServingEndpoint:
             logger.info(f"Online feature table {self.feature_lookup_table_online} already exists. Skipping creation.")
         except databricks.sdk.errors.platform.NotFound:
             logger.info(f"Online feature table {self.feature_lookup_table_online} does not exist. Creating it.")
-        
+
             spec = OnlineTableSpec(
                 primary_key_columns=["email"],
                 source_table_full_name=self.feature_lookup_table,
@@ -42,8 +41,6 @@ class FeatureServingEndpoint:
 
             self.workspace.online_tables.create(name=self.feature_lookup_table_online, spec=spec)
             logger.info(f"Online feature table {self.feature_lookup_table_online} created")
-
-
 
     def create_feature_spec(self):
         """
@@ -80,16 +77,20 @@ class FeatureServingEndpoint:
             schema_name=Config.SCHEMA_NAME,
             table_name_prefix=Config.TABLE_NAME_PREFIX,
         )
-        
+
         if not endpoint_exists:
-            logger.info(f"Creating feature serving endpoint {Config.FEATURE_LOOKUP_ENDPOINT_NAME} with served entities {served_entities}")
+            logger.info(
+                f"Creating feature serving endpoint {Config.FEATURE_LOOKUP_ENDPOINT_NAME} with served entities {served_entities}"
+            )
             self.workspace.serving_endpoints.create(
                 name=Config.FEATURE_LOOKUP_ENDPOINT_NAME,
-                auto_capture_config=auto_capture_config
+                auto_capture_config=auto_capture_config,
                 config=EndpointCoreConfigInput(
                     served_entities=served_entities,
                 ),
             )
         else:
-            logger.info(f"Updating feature serving endpoint {Config.FEATURE_LOOKUP_ENDPOINT_NAME} with served entities {served_entities}")
+            logger.info(
+                f"Updating feature serving endpoint {Config.FEATURE_LOOKUP_ENDPOINT_NAME} with served entities {served_entities}"
+            )
             self.workspace.serving_endpoints.update_config(name=self.endpoint_name, served_entities=served_entities)
