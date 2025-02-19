@@ -8,8 +8,8 @@ from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from src.hotel_cancellation.configs.feature_pipeline_config import Config
-from src.hotel_cancellation.utils import get_logger
+from hotel_cancellation.configs.feature_pipeline_config import Config
+from hotel_cancellation.utils import get_logger
 
 logger = get_logger()
 
