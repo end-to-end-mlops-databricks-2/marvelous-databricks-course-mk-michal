@@ -2,7 +2,7 @@ import mlflow
 import mlflow.utils.databricks_utils
 from pyspark.sql import SparkSession
 
-from hotel_cancellation.configs.feature_pipeline_config import Config
+from hotel_cancellation.configs.config import Config
 from hotel_cancellation.model_training import ModelTrainer
 
 mlflow.set_tracking_uri("databricks")

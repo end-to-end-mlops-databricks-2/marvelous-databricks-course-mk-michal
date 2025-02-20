@@ -5,7 +5,7 @@ from databricks.sdk import WorkspaceClient
 from mlflow.models import infer_signature
 from pyspark.sql import SparkSession
 
-from hotel_cancellation.configs.feature_pipeline_config import Config
+from hotel_cancellation.configs.config import Config
 from hotel_cancellation.model_training import ModelTrainer
 from hotel_cancellation.utils import get_logger
 

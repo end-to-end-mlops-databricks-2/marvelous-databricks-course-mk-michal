@@ -6,7 +6,7 @@ import requests
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.serving import AutoCaptureConfigInput, EndpointCoreConfigInput, ServedEntityInput
 
-from hotel_cancellation.configs.feature_pipeline_config import Config
+from hotel_cancellation.configs.config import Config
 from hotel_cancellation.utils import get_logger
 
 logger = get_logger()

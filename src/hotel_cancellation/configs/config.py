@@ -1,3 +1,5 @@
+# TODO: move this into yaml file and make different configs for different environments
+
 class Config:
     COLUMNS_CONFIG = [
         {"column": "lead_time", "type": "int", "transformation": None, "fill_missing": "mean"},
